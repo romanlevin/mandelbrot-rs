@@ -5,6 +5,7 @@ authors = ["Roman Levin <rlevin@egnyte.com>"]
 
 [dependencies]
 num = "0.1.27"
+rayon = "1.0"
 
 [dependencies.image]
 version = "0.13.0"

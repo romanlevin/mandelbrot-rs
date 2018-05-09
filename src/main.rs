@@ -1,9 +1,11 @@
 extern crate image;
 extern crate num;
+extern crate rayon;
 
 use image::png::PNGEncoder;
 use image::ColorType;
 use num::Complex;
+use rayon::prelude::*;
 use std::fs::File;
 use std::str::FromStr;
 
@@ -72,7 +74,7 @@ fn test_pixel_to_point() {
 
 fn render(bounds: (usize, usize), upper_left: Complex<f64>, lower_right: Complex<f64>) -> Vec<u8> {
     (0..(bounds.0 * bounds.1))
-        .into_iter()
+        .into_par_iter()
         .map(|i| (i % bounds.0, i / bounds.0))
         .map(|(column, row)| pixel_to_point(bounds, (column, row), upper_left, lower_right))
         .map(|point| escape_time(point, 255).map_or(0, |time| 255 - time as u8))
