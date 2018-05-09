@@ -5,4 +5,8 @@ authors = ["Roman Levin <rlevin@egnyte.com>"]
 
 [dependencies]
 num = "0.1.27"
-image = "0.13.0"
+
+[dependencies.image]
+version = "0.13.0"
+default-features = false
+features = ["png_codec"]
