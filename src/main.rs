@@ -70,24 +70,13 @@ fn test_pixel_to_point() {
     );
 }
 
-fn render(
-    pixels: &mut [u8],
-    bounds: (usize, usize),
-    upper_left: Complex<f64>,
-    lower_right: Complex<f64>,
-) {
-    assert_eq!(pixels.len(), bounds.0 * bounds.1);
-
-    for row in 0..bounds.1 {
-        for column in 0..bounds.0 {
-            let point = pixel_to_point(bounds, (column, row), upper_left, lower_right);
-
-            pixels[row * bounds.0 + column] = match escape_time(point, 255) {
-                None => 0,
-                Some(count) => 255 - count as u8,
-            }
-        }
-    }
+fn render(bounds: (usize, usize), upper_left: Complex<f64>, lower_right: Complex<f64>) -> Vec<u8> {
+    (0..(bounds.0 * bounds.1))
+        .into_iter()
+        .map(|i| (i % bounds.0, i / bounds.0))
+        .map(|(column, row)| pixel_to_point(bounds, (column, row), upper_left, lower_right))
+        .map(|point| escape_time(point, 255).map_or(0, |time| 255 - time as u8))
+        .collect()
 }
 
 fn write_image(
@@ -135,9 +124,8 @@ fn main() {
     let upper_left = parse_complex(&args[3]).expect("error parsing upper left corner point");
     let lower_right = parse_complex(&args[4]).expect("error parsing lower right corner point");
 
-    let mut pixels = vec![0; bounds.0 * bounds.1];
-
-    render(&mut pixels, bounds, upper_left, lower_right);
+    // render(&mut pixels, bounds, upper_left, lower_right);
+    let pixels = render(bounds, upper_left, lower_right);
 
     write_image(&args[1], &pixels, bounds).expect("error writing PNG file");
 }
