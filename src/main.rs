@@ -38,7 +38,7 @@ fn test_parse_complex() {
         parse_complex("1.25,-0.625"),
         Some(Complex {
             re: 1.25,
-            im: -0.625
+            im: -0.625,
         })
     );
 }
