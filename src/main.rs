@@ -2,12 +2,16 @@ extern crate image;
 extern crate num;
 extern crate rayon;
 
+pub mod lib;
+
 use image::png::PNGEncoder;
 use image::ColorType;
 use num::Complex;
 use rayon::prelude::*;
+use std::io::Write;
 use std::fs::File;
 use std::str::FromStr;
+use self::lib::escape_time;
 
 /// Parse the string `s` as a coordinate pair, like `"400x600"` or `"1.1,0.7"`
 fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
@@ -81,33 +85,27 @@ fn render(bounds: (usize, usize), upper_left: Complex<f64>, lower_right: Complex
         .collect()
 }
 
-fn write_image(
-    filename: &str,
+fn write_image<W: Write>(
+    writer: W,
     pixels: &[u8],
     bounds: (usize, usize),
 ) -> Result<(), std::io::Error> {
-    let output = File::create(filename)?;
-
-    let encoder = PNGEncoder::new(output);
+    let encoder = PNGEncoder::new(writer);
     encoder.encode(
         &pixels,
         bounds.0 as u32,
         bounds.1 as u32,
         ColorType::Gray(8),
-    )?;
-    Ok(())
+    )
 }
 
-fn escape_time(c: Complex<f64>, limit: u32) -> Option<u32> {
-    let mut z = Complex { re: 0.0, im: 0.0 };
-    for i in 0..limit {
-        z = z * z + c;
-        if z.norm_sqr() > 4.0 {
-            return Some(i);
-        }
-    }
-
-    None
+fn write_image_to_file(
+    filename: &str,
+    pixels: &[u8],
+    bounds: (usize, usize),
+) -> Result<(), std::io::Error> {
+    let output = File::create(filename)?;
+    write_image(output, pixels, bounds)
 }
 
 fn main() {
@@ -129,5 +127,5 @@ fn main() {
     // render(&mut pixels, bounds, upper_left, lower_right);
     let pixels = render(bounds, upper_left, lower_right);
 
-    write_image(&args[1], &pixels, bounds).expect("error writing PNG file");
+    write_image_to_file(&args[1], &pixels, bounds).expect("error writing PNG file");
 }
