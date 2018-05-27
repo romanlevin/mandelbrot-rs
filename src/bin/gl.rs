@@ -56,6 +56,7 @@ fn main() {
     let zoom_step = 0.05f32;
     let mut zoom = 1.0f32;
     let mut max_iterations = 100u16;
+    let mut multisample = false;
     while !closed {
         let mut target = display.draw();
         let (width, height) = display.gl_window().get_inner_size().unwrap_or((1, 1));
@@ -71,6 +72,7 @@ fn main() {
                     zoom: zoom,
                     center: center,
                     max_iterations: max_iterations as i32,
+                    multisample: multisample,
                     },
                 &Default::default(),
             )
@@ -98,6 +100,7 @@ fn main() {
                             Some(glutin::VirtualKeyCode::Left) => center = (center.0 + move_step, center.1),
                             Some(glutin::VirtualKeyCode::Equals) => max_iterations = max_iterations + 10,
                             Some(glutin::VirtualKeyCode::Minus) => max_iterations = max_iterations - 10,
+                            Some(glutin::VirtualKeyCode::M) => multisample = !multisample,
                             Some(glutin::VirtualKeyCode::Escape) => closed = true,
                             something => println!("{:?}", something),
                         }

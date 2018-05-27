@@ -5,6 +5,7 @@ out vec4 color;
 uniform float height, width, zoom;
 uniform vec2 center;
 uniform int max_iterations;
+uniform bool multisample;
 
 vec3 hsv2rgb(vec3 c) {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -36,8 +37,11 @@ vec4 get_color(vec2 coords) {
 
 void main() {
     // vec2 c = gl_FragCoord.xy / vec2(width, height) * 4.0 - 2.0;
-    color =  mix(get_color(gl_FragCoord.xy), get_color(gl_FragCoord.xy + vec2(1, 1)), 0.5);
-    color =  mix(color, get_color(gl_FragCoord.xy + vec2(-1, -1)), 0.5);
-    color =  mix(color, get_color(gl_FragCoord.xy + vec2(-1, 1)), 0.5);
-    color =  mix(color, get_color(gl_FragCoord.xy + vec2(1, -1)), 0.5);
+    color = get_color(gl_FragCoord.xy);
+    if (multisample) {
+        color =  mix(color, get_color(gl_FragCoord.xy + vec2(1, 1)), 0.25);
+        color =  mix(color, get_color(gl_FragCoord.xy + vec2(-1, -1)), 0.25);
+        color =  mix(color, get_color(gl_FragCoord.xy + vec2(-1, 1)), 0.25);
+        color =  mix(color, get_color(gl_FragCoord.xy + vec2(1, -1)), 0.25);
+    }
 }
