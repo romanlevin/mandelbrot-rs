@@ -4,7 +4,7 @@ out vec4 color;
 
 uniform float height, width, zoom;
 uniform vec2 center;
-int max_iterations = 100;
+uniform int max_iterations;
 
 vec3 hsv2rgb(vec3 c) {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -12,8 +12,8 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-void main() {
-    vec2 c = gl_FragCoord.xy / vec2(width, height) * 4.0 - 2.0;
+vec4 get_color(vec2 coords) {
+    vec2 c = coords.xy / vec2(width, height) * 4.0 - 2.0;
     c = c / zoom - center;
 
     vec2 z = c;
@@ -31,4 +31,13 @@ void main() {
         float val = i / float(max_iterations);
         color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
     }
+    return color;
+}
+
+void main() {
+    // vec2 c = gl_FragCoord.xy / vec2(width, height) * 4.0 - 2.0;
+    color =  mix(get_color(gl_FragCoord.xy), get_color(gl_FragCoord.xy + vec2(1, 1)), 0.5);
+    color =  mix(color, get_color(gl_FragCoord.xy + vec2(-1, -1)), 0.5);
+    color =  mix(color, get_color(gl_FragCoord.xy + vec2(-1, 1)), 0.5);
+    color =  mix(color, get_color(gl_FragCoord.xy + vec2(1, -1)), 0.5);
 }

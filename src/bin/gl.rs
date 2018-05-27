@@ -52,9 +52,10 @@ fn main() {
 
     let mut closed = false;
     let mut center = (0.5f32, 0.0f32);
-    let move_step = 0.02f32;
+    let mut move_step = 0.02f32;
     let zoom_step = 0.05f32;
     let mut zoom = 1.0f32;
+    let mut max_iterations = 100u16;
     while !closed {
         let mut target = display.draw();
         let (width, height) = display.gl_window().get_inner_size().unwrap_or((1, 1));
@@ -69,6 +70,7 @@ fn main() {
                     width: width as f32,
                     zoom: zoom,
                     center: center,
+                    max_iterations: max_iterations as i32,
                     },
                 &Default::default(),
             )
@@ -84,14 +86,18 @@ fn main() {
                         match virtual_keycode {
                             Some(glutin::VirtualKeyCode::Z) => {
                                 zoom = zoom * (1.0 + zoom_step);
+                                move_step = 0.05 / zoom;
                             },
                             Some(glutin::VirtualKeyCode::X) => {
                                 zoom = zoom / (1.0 + zoom_step);
+                                move_step = 0.05 / zoom;
                             },
-                            Some(glutin::VirtualKeyCode::Up) => center = (center.0, center.1 + move_step),
-                            Some(glutin::VirtualKeyCode::Down) => center = (center.0, center.1 - move_step),
+                            Some(glutin::VirtualKeyCode::Down) => center = (center.0, center.1 + move_step),
+                            Some(glutin::VirtualKeyCode::Up) => center = (center.0, center.1 - move_step),
                             Some(glutin::VirtualKeyCode::Right) => center = (center.0 - move_step, center.1),
                             Some(glutin::VirtualKeyCode::Left) => center = (center.0 + move_step, center.1),
+                            Some(glutin::VirtualKeyCode::Equals) => max_iterations = max_iterations + 10,
+                            Some(glutin::VirtualKeyCode::Minus) => max_iterations = max_iterations - 10,
                             Some(glutin::VirtualKeyCode::Escape) => closed = true,
                             something => println!("{:?}", something),
                         }
